@@ -1,0 +1,63 @@
+include:
+  - ./compose.db-env.yml
+
+services:
+  db:
+    container_name: ${POSTGRES_CONTAINER_NAME:-db}
+    command: -c 'config_file=/etc/postgresql/postgresql.conf'
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 4G
+    env_file: ./.db.env
+    environment:
+      POSTGRES_CONTAINER_NAME: ${POSTGRES_CONTAINER_NAME:-db}
+      POSTGRES_DB: ${POSTGRES_DB:-geomaniac}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    image: postgres:16.1-alpine3.18
+    networks:
+      - backend-net
+    platform: linux/amd64
+    ports:
+      - ${POSTGRES_PORT}:5432
+    restart: unless-stopped
+    volumes:
+      - db-data:/var/lib/postgresql/data/
+      - ./.postgresql.conf:/etc/postgresql/postgresql.conf
+
+  pgadmin:
+    container_name: pgadmin
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+    depends_on:
+      - db
+    image: dpage/pgadmin4:8.6
+    env_file: ./.pgadmin.env
+    environment:
+      MASTER_PASSWORD_REQUIRED: ${MASTER_PASSWORD_REQUIRED:-False}
+      PGADMIN_CONFIG_SERVER_MODE: ${PGADMIN_CONFIG_SERVER_MODE:-False}
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+      - ./.pgadmin.servers.json:/pgadmin4/servers.json
+    networks:
+      - backend-net
+    platform: linux/amd64
+    ports:
+      - ${PGADMIN_HOST_PORT:-8080}:80
+    restart: unless-stopped
+
+

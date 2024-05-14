@@ -1,0 +1,8 @@
+networks:
+  backend-net:
+    driver: bridge
+    external: false
+
+volumes:
+  db-data:
+  pgadmin-data:
