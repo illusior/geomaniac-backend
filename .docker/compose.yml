@@ -1,0 +1,21 @@
+include:
+  - ./compose.db-env.yml
+
+services:
+  backend:
+    extends:
+      file: ./compose.app.yml
+      service: backend
+    depends_on:
+      - db
+      - pgadmin
+
+  db:
+    extends:
+      file: ./compose.db.yml
+      service: db
+
+  pgadmin:
+    extends:
+      file: ./compose.db.yml
+      service: pgadmin

@@ -1,0 +1,13 @@
+# Python
+__pycache__
+.coverage
+.mypy_cache
+.venv
+*.pyc
+app.egg-info
+htmlcov
+
+.docker
+.github
+.gitignore
+cspell.json
