@@ -27,8 +27,6 @@ services:
     networks:
       - backend-net
     platform: linux/amd64
-    ports:
-      - ${POSTGRES_PORT}:5432
     restart: unless-stopped
     volumes:
       - db-data:/var/lib/postgresql/data/
@@ -56,8 +54,6 @@ services:
     networks:
       - backend-net
     platform: linux/amd64
-    ports:
-      - ${PGADMIN_HOST_PORT:-8080}:80
     restart: unless-stopped
 
 

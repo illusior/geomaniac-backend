@@ -1,0 +1,38 @@
+include:
+  - ./compose.db-env.yml
+
+services:
+  backend:
+    extends:
+      file: ./compose.app.yml
+      service: backend
+    depends_on:
+      - db
+      - pgadmin
+    develop:
+      watch:
+        # for only frontend container (docker compose up from project's root directory)
+        - action: sync
+          path: ./../backend/src/
+          target: /app/src/
+
+        # for only backend container (docker compose up from backend's root directory)
+        - action: sync
+          path: ./src/
+          target: /app/src/
+    ports:
+      - ${BACKEND_HOST_PORT:-80}:8000
+
+  db:
+    extends:
+      file: ./compose.db.yml
+      service: db
+    ports:
+      - ${POSTGRES_PORT}:5432
+
+  pgadmin:
+    extends:
+      file: ./compose.db.yml
+      service: pgadmin
+    ports:
+      - ${PGADMIN_HOST_PORT:-8080}:80
